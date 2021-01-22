@@ -14,7 +14,7 @@ public class PortalBlockPopulator extends BlockPopulator {
     @Override
     public void populate(World world, Random rand, Chunk chunk) {
 
-        if (rand.nextInt()%20 == 0) {
+        if (rand.nextInt()%200 == 0) {
             Vector chunkPos = new Vector(chunk.getX()*16, 0, chunk.getZ()*16);
             int portalY = 1+(int)world.getHighestBlockAt((int)chunkPos.getX()+8, (int)chunkPos.getZ()+8).getLocation().getY();
             Block block = chunk.getBlock(8, portalY, 8);
