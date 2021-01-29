@@ -1,11 +1,9 @@
 package devlaunchers.rifthunters;
 
-import org.bukkit.World;
-import org.bukkit.event.world.WorldLoadEvent;
+import devlaunchers.rifthunters.riftsystem.PortalListener;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.util.Vector;
 
-public final class RiftHunters extends JavaPlugin {
+public final class RiftHuntersPlugin extends JavaPlugin {
 
     private static JavaPlugin instance;
 

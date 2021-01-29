@@ -1,4 +1,4 @@
-package devlaunchers.rifthunters.populator.generator;
+package devlaunchers.rifthunters.populator;
 
 import org.bukkit.Material;
 

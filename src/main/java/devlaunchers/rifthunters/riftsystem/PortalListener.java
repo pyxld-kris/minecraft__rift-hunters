@@ -1,32 +1,19 @@
-package devlaunchers.rifthunters;
+package devlaunchers.rifthunters.riftsystem;
 
+import devlaunchers.rifthunters.RiftHuntersPlugin;
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
-
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerStatisticIncrementEvent;
 import org.bukkit.event.world.WorldInitEvent;
-import org.bukkit.event.world.WorldLoadEvent;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
-import org.bukkit.util.Vector;
-
-import java.awt.geom.Point2D;
-import java.util.ArrayList;
-import java.util.List;
-
-
 
 public class PortalListener implements Listener {
 
     private static boolean populatorIsInitialized = false;
+    private static boolean playerInPortalBlock = false;
 
     @EventHandler
     public void onWorldInit(WorldInitEvent e) {
@@ -34,7 +21,7 @@ public class PortalListener implements Listener {
             System.out.println("onWorldInit: WORLD HAS INITIALIZED");
             World world = e.getWorld();
             // spawn is generated before the next line is called
-            world.getPopulators().add(new PortalBlockPopulator());
+            world.getPopulators().add(new PortalPopulator());
             populatorIsInitialized = true;
         }
     }
@@ -45,7 +32,7 @@ public class PortalListener implements Listener {
         Bukkit.getServer().broadcastMessage("player joined");
     }
 
-    private static boolean playerInPortalBlock = false;
+
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent e) {
         Player player = e.getPlayer();
@@ -58,12 +45,12 @@ public class PortalListener implements Listener {
 
             // Visually notify the player that they are standing in a portal block
             Location effectLocation = playerLocation.clone();
-            effectLocation.setY(effectLocation.getY()+1);
+            effectLocation.setY(effectLocation.getY() + 1);
             //world.playEffect(effectLocation, Effect.ENDER_SIGNAL, 0);
-            world.playEffect(effectLocation,Effect.PORTAL_TRAVEL,0);
+            world.playEffect(effectLocation, Effect.PORTAL_TRAVEL, 0);
 
             // Delay for one second: if player is still in portal, then teleport
-            Bukkit.getScheduler().runTaskLater(RiftHunters.getInstance(), new Runnable() {
+            Bukkit.getScheduler().runTaskLater(RiftHuntersPlugin.getInstance(), new Runnable() {
                 @Override
                 public void run() {
                     Block newPlayerBlock = world.getBlockAt(player.getLocation());
@@ -74,8 +61,7 @@ public class PortalListener implements Listener {
                 }
 
             }, 40);
-        }
-        else {
+        } else {
             playerInPortalBlock = false;
         }
     }

@@ -1,7 +1,5 @@
 package devlaunchers.rifthunters.populator;
 
-import devlaunchers.rifthunters.populator.generator.StructureGenerator;
-import devlaunchers.rifthunters.populator.placementdeterminator.StructurePlacementDeterminator;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -15,8 +13,16 @@ public class StructurePopulator extends BlockPopulator {
     private StructurePlacementDeterminator structurePlacementDeterminator;
     private Material[] ignoredMaterials;
 
+    public StructurePopulator(StructureGenerator structureGenerator, StructurePlacementDeterminator structurePlacementDeterminator) {
+        structureGenerator = structureGenerator;
+        structurePlacementDeterminator = structurePlacementDeterminator;
+    }
+
     @Override
     public void populate(World world, Random rand, Chunk chunk) {
-
+        if (structurePlacementDeterminator.determinePlacement(world, rand, chunk)) {
+            structureGenerator.generate(world, rand, chunk);
+        }
     }
+
 }
