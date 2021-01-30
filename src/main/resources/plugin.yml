@@ -1,5 +1,5 @@
-name: RiftHunters
+name: RiftHuntersPlugin
 version: ${project.version}
-main: devlaunchers.rifthunters.RiftHunters
+main: devlaunchers.rifthunters.RiftHuntersPlugin
 api-version: 1.16
 load: startup

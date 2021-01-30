@@ -13,9 +13,10 @@ public class StructurePopulator extends BlockPopulator {
     private StructurePlacementDeterminator structurePlacementDeterminator;
     private Material[] ignoredMaterials;
 
-    public StructurePopulator(StructureGenerator structureGenerator, StructurePlacementDeterminator structurePlacementDeterminator) {
-        structureGenerator = structureGenerator;
-        structurePlacementDeterminator = structurePlacementDeterminator;
+    public StructurePopulator(StructureGenerator _structureGenerator, StructurePlacementDeterminator _structurePlacementDeterminator) {
+        System.out.println("IN POP CONSTRUCTOR");
+        structureGenerator = _structureGenerator;
+        structurePlacementDeterminator = _structurePlacementDeterminator;
     }
 
     @Override
@@ -24,5 +25,4 @@ public class StructurePopulator extends BlockPopulator {
             structureGenerator.generate(world, rand, chunk);
         }
     }
-
 }

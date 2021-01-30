@@ -8,6 +8,8 @@ import org.bukkit.block.Block;
 import org.bukkit.util.Vector;
 
 import java.util.Random;
+// TODO: Register portals as "StructureType" using Bukkit
+
 
 public class PortalPopulator extends StructurePopulator {
 
