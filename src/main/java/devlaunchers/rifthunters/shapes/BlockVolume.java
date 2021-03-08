@@ -20,8 +20,6 @@ public abstract class BlockVolume {
 
 class BlockCollection {
 
-
-
     public BlockCollection() {
 
     }

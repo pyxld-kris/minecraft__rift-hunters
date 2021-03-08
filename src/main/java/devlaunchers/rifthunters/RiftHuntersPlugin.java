@@ -17,6 +17,12 @@ import java.util.Map;
 
 public final class RiftHuntersPlugin extends JavaPlugin {
 
+    // START CONFIG
+    private static String[] WORLDS = new String[]{
+            "daily-world"
+    };
+    // END CONFIG
+
     private static JavaPlugin instance;
 
     public static JavaPlugin getInstance() {
@@ -26,8 +32,6 @@ public final class RiftHuntersPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
-
-
 
         // Plugin startup logic
         System.out.println("PLUGIN_INIT - hehe");
