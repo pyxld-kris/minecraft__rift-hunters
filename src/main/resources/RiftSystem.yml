@@ -1,0 +1,5 @@
+allowedWorlds:
+ - "daily-world"
+ - "daily-world.*"
+
+portal_spawn_probability: 0.005

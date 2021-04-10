@@ -1,28 +1,46 @@
 package devlaunchers.rifthunters.populator;
 
+import java.util.Random;
+
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.generator.BlockPopulator;
-
-import java.util.Random;
+import org.bukkit.plugin.java.JavaPlugin;
 
 public class StructurePopulator extends BlockPopulator {
 
-    private StructureGenerator structureGenerator;
-    private StructurePlacementDeterminator structurePlacementDeterminator;
-    private Material[] ignoredMaterials;
+	private static boolean initializedListener = false;
 
-    public StructurePopulator(StructureGenerator _structureGenerator, StructurePlacementDeterminator _structurePlacementDeterminator) {
-        System.out.println("IN POP CONSTRUCTOR");
-        structureGenerator = _structureGenerator;
-        structurePlacementDeterminator = _structurePlacementDeterminator;
-    }
+	private StructureGenerator structureGenerator;
+	private StructurePlacementDeterminator structurePlacementDeterminator;
+	private JavaPlugin plugin;
+	private StructureGeneratorConfig generationConfig;
 
-    @Override
-    public void populate(World world, Random rand, Chunk chunk) {
-        if (structurePlacementDeterminator.determinePlacement(world, rand, chunk)) {
-            structureGenerator.generate(world, rand, chunk);
-        }
-    }
+	public StructurePopulator(String structureName, StructureGenerator _structureGenerator,
+			StructurePlacementDeterminator _structurePlacementDeterminator, JavaPlugin plugin) {
+		this.structureGenerator = _structureGenerator;
+		this.structurePlacementDeterminator = _structurePlacementDeterminator;
+		this.plugin = plugin;
+		this.generationConfig = new StructureGeneratorConfig(structureName, plugin);
+
+		StructureWorldListener.registerPopulator(this);
+
+		if (!initializedListener) {
+			Bukkit.getPluginManager().registerEvents(new StructureWorldListener(), plugin);
+			initializedListener = true;
+		}
+		
+		this.structureGenerator.setStructureConfig(generationConfig);
+		this.structureGenerator.initGenerator(generationConfig);
+		this.structurePlacementDeterminator.setStructureConfig(generationConfig);
+		this.structurePlacementDeterminator.initPlacementDeterminator(generationConfig);
+	}
+
+	@Override
+	public void populate(World world, Random rand, Chunk chunk) {
+		if (structurePlacementDeterminator.determinePlacement(world, rand, chunk)) {
+			structureGenerator.generate(world, rand, chunk);
+		}
+	}
 }

@@ -6,6 +6,19 @@ import org.bukkit.World;
 
 import java.util.Random;
 
-public interface StructureGenerator {
-    public void generate(World world, Random rand, Chunk chunk);
+public abstract class StructureGenerator {
+
+	private StructureGeneratorConfig structureConfig;
+
+	public void setStructureConfig(StructureGeneratorConfig structureConfig) {
+		this.structureConfig = structureConfig;
+	}
+
+	public StructureGeneratorConfig getConfig() {
+		return structureConfig;
+	}
+	
+	public abstract void initGenerator(StructureGeneratorConfig structureConfig);
+
+	public abstract void generate(World world, Random rand, Chunk chunk);
 }
