@@ -12,9 +12,10 @@ import org.bukkit.util.Vector;
 import devlaunchers.structuresystem.populator.StructureGenerator;
 import devlaunchers.structuresystem.populator.StructureGeneratorConfig;
 import devlaunchers.structuresystem.shapes.CompositeShape;
-import devlaunchers.structuresystem.shapes.Cube;
-import devlaunchers.structuresystem.shapes.Cuboid;
-import devlaunchers.structuresystem.shapes.ShapeConstruction;
+import devlaunchers.structuresystem.shapes.implementation.Cube;
+import devlaunchers.structuresystem.shapes.implementation.Cuboid;
+import devlaunchers.structuresystem.shapes.implementation.Cylinder;
+import devlaunchers.structuresystem.shapes.implementation.Sphere;
 
 public class PortalGenerator extends StructureGenerator {
 
@@ -36,16 +37,40 @@ public class PortalGenerator extends StructureGenerator {
 	public static void spawnPortal(World world, int xPos, int zPos) {
 		CompositeShape portal = new CompositeShape();
 
-		portal.addShape(0, -3, 0, new Cube(4, Material.END_STONE));
-		portal.addShape(1, 1, 1, new Cuboid(1, 2, 1, Material.END_GATEWAY));
+		Sphere lowerSphere = new Sphere(9, Material.END_STONE, true);
+		lowerSphere.addFilterTransformation((vec) -> vec.getBlockY() > 3);
+		portal.addShape(0, -4, 0, lowerSphere);
+
+		Cylinder decorations = new Cylinder(3, 1, Material.END_STONE_BRICK_SLAB, true);
+
+		decorations.addFilterTransformation((vec) -> vec.getBlockX() == 3 && vec.getBlockZ() == 3);
+
+		portal.addShape(1, 0, 1, decorations);
+
+		portal.addShape(4, 0, 4, new Cuboid(1, 1, 1, Material.DIAMOND_BLOCK));
+
+		portal.addShape(4, 1, 4, new Cuboid(1, 2, 1, Material.END_GATEWAY));
+
+		portal.setLocationTransformer((locRequest) -> {
+			Location origLocation = locRequest.originalLocation;
+			if (locRequest.relativeY > 2)
+				return origLocation;
+
+			Block high = world.getHighestBlockAt(origLocation.getBlockX(), origLocation.getBlockZ());
+			return high.getLocation().add(0, locRequest.relativeY, 0);
+		});
 
 		Block highestBlock = world.getHighestBlockAt(xPos, zPos);
 
-		portal.construct(new ShapeConstruction(highestBlock.getLocation(), (locRequest) -> {
-			Location origLocation = locRequest.originalLocation;
-			Block high = world.getHighestBlockAt(origLocation.getBlockX(), origLocation.getBlockZ());
-			return high.getLocation().add(0, locRequest.relativeY, 0);
-		}));
+		portal.construct(highestBlock.getLocation());
+//		LocationRequestTransformer transformer = (locRequest) -> {
+//			Location origLocation = locRequest.originalLocation;
+//			if (locRequest.relativeY > 2)
+//				return origLocation;
+//
+//			Block high = world.getHighestBlockAt(origLocation.getBlockX(), origLocation.getBlockZ());
+//			return high.getLocation().add(0, locRequest.relativeY, 0);
+//		}
 
 		// Get a safe Y position to teleport to
 //		int yPos = 1 + (int) world.getHighestBlockAt(xPos, zPos).getLocation().getY();

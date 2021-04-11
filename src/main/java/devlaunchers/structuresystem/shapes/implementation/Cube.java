@@ -1,4 +1,4 @@
-package devlaunchers.structuresystem.shapes;
+package devlaunchers.structuresystem.shapes.implementation;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
