@@ -1,4 +1,4 @@
-package devlaunchers.rifthunters.populator;
+package devlaunchers.structuresystem.populator;
 
 import java.util.Random;
 

@@ -1,4 +1,4 @@
-package devlaunchers.rifthunters.populator;
+package devlaunchers.structuresystem.populator;
 
 import java.io.File;
 import java.util.List;

@@ -1,17 +1,20 @@
 package devlaunchers.rifthunters.riftsystem;
 
-import devlaunchers.rifthunters.populator.StructureGenerator;
-import devlaunchers.rifthunters.populator.StructureGeneratorConfig;
+import java.util.Random;
 
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.util.Vector;
 
-import java.util.Random;
+import devlaunchers.structuresystem.populator.StructureGenerator;
+import devlaunchers.structuresystem.populator.StructureGeneratorConfig;
+import devlaunchers.structuresystem.shapes.CompositeShape;
+import devlaunchers.structuresystem.shapes.Cube;
+import devlaunchers.structuresystem.shapes.Cuboid;
+import devlaunchers.structuresystem.shapes.ShapeConstruction;
 
 public class PortalGenerator extends StructureGenerator {
 
@@ -31,53 +34,66 @@ public class PortalGenerator extends StructureGenerator {
 	}
 
 	public static void spawnPortal(World world, int xPos, int zPos) {
+		CompositeShape portal = new CompositeShape();
+
+		portal.addShape(0, -3, 0, new Cube(4, Material.END_STONE));
+		portal.addShape(1, 1, 1, new Cuboid(1, 2, 1, Material.END_GATEWAY));
+
+		Block highestBlock = world.getHighestBlockAt(xPos, zPos);
+
+		portal.construct(new ShapeConstruction(highestBlock.getLocation(), (locRequest) -> {
+			Location origLocation = locRequest.originalLocation;
+			Block high = world.getHighestBlockAt(origLocation.getBlockX(), origLocation.getBlockZ());
+			return high.getLocation().add(0, locRequest.relativeY, 0);
+		}));
+
 		// Get a safe Y position to teleport to
-		int yPos = 1 + (int) world.getHighestBlockAt(xPos, zPos).getLocation().getY();
-		Location location = new Location(world, xPos, yPos, zPos);
-
-		// Place a portal block at the destination portal location
-		// (initial seed algorithm only generates base portals, not destinations)
-		Block destinationPortalBlock = world.getBlockAt(location);
-		if (destinationPortalBlock.getRelative(BlockFace.UP).getType() != Material.END_GATEWAY) {
-			// Portal surrounding terrain
-			for (int i = -4; i <= 4; i++) {
-				for (int j = -4; j <= 4; j++) {
-					for (int k = -3; k <= -1; k++) {
-						if (Math.abs(i) + Math.abs(j) + Math.abs(k) > 6)
-							continue;
-						Block surroundingHighestBlock = world.getHighestBlockAt(xPos + i, zPos + j);
-						Block surroundingBlock = world.getBlockAt(xPos + i, surroundingHighestBlock.getY() + k,
-								zPos + j);
-						surroundingBlock.setType(Material.END_STONE);
-					}
-				}
-			}
-
-			// Portal surrounding decor
-			Material[] materials = { Material.END_STONE_BRICK_SLAB, Material.END_STONE_BRICK_STAIRS,
-					Material.END_STONE_BRICK_WALL };
-			for (int i = -4; i <= 4; i++) {
-				for (int j = -4; j <= 4; j++) {
-					if (Math.abs(i) + Math.abs(j) > 6)
-						continue;
-
-					Block surroundingHighestBlock = world.getHighestBlockAt(xPos + i, zPos + j);
-					Block surroundingBlock = world.getBlockAt(xPos + i, surroundingHighestBlock.getY(), zPos + j);
-
-					Material materialToSet = materials[(int) (Math.random() * materials.length)];
-					if (Math.abs(i) + Math.abs(j) < 3) {
-						materialToSet = Material.END_STONE_BRICKS;
-					}
-
-					surroundingBlock.setType(materialToSet);
-				}
-			}
-
-			// Portal column
-			setMaterialAt(world, xPos, yPos, zPos, Material.END_GATEWAY);
-			setMaterialAt(world, xPos, yPos + 1, zPos, Material.END_GATEWAY);
-			setMaterialAt(world, xPos, yPos - 1, zPos, Material.DIAMOND_BLOCK);
-		}
+//		int yPos = 1 + (int) world.getHighestBlockAt(xPos, zPos).getLocation().getY();
+//		Location location = new Location(world, xPos, yPos, zPos);
+//
+//		// Place a portal block at the destination portal location
+//		// (initial seed algorithm only generates base portals, not destinations)
+//		Block destinationPortalBlock = world.getBlockAt(location);
+//		if (destinationPortalBlock.getRelative(BlockFace.UP).getType() != Material.END_GATEWAY) {
+//			// Portal surrounding terrain
+//			for (int i = -4; i <= 4; i++) {
+//				for (int j = -4; j <= 4; j++) {
+//					for (int k = -3; k <= -1; k++) {
+//						if (Math.abs(i) + Math.abs(j) + Math.abs(k) > 6)
+//							continue;
+//						Block surroundingHighestBlock = world.getHighestBlockAt(xPos + i, zPos + j);
+//						Block surroundingBlock = world.getBlockAt(xPos + i, surroundingHighestBlock.getY() + k,
+//								zPos + j);
+//						surroundingBlock.setType(Material.END_STONE);
+//					}
+//				}
+//			}
+//
+//			// Portal surrounding decor
+//			Material[] materials = { Material.END_STONE_BRICK_SLAB, Material.END_STONE_BRICK_STAIRS,
+//					Material.END_STONE_BRICK_WALL };
+//			for (int i = -4; i <= 4; i++) {
+//				for (int j = -4; j <= 4; j++) {
+//					if (Math.abs(i) + Math.abs(j) > 6)
+//						continue;
+//
+//					Block surroundingHighestBlock = world.getHighestBlockAt(xPos + i, zPos + j);
+//					Block surroundingBlock = world.getBlockAt(xPos + i, surroundingHighestBlock.getY(), zPos + j);
+//
+//					Material materialToSet = materials[(int) (Math.random() * materials.length)];
+//					if (Math.abs(i) + Math.abs(j) < 3) {
+//						materialToSet = Material.END_STONE_BRICKS;
+//					}
+//
+//					surroundingBlock.setType(materialToSet);
+//				}
+//			}
+//
+//			// Portal column
+//			setMaterialAt(world, xPos, yPos, zPos, Material.END_GATEWAY);
+//			setMaterialAt(world, xPos, yPos + 1, zPos, Material.END_GATEWAY);
+//			setMaterialAt(world, xPos, yPos - 1, zPos, Material.DIAMOND_BLOCK);
+//		}
 	}
 
 	private static void setMaterialAt(World world, int x, int y, int z, Material material) {

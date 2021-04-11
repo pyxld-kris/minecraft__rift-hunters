@@ -5,8 +5,8 @@ import java.util.Random;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 
-import devlaunchers.rifthunters.populator.StructureGeneratorConfig;
-import devlaunchers.rifthunters.populator.StructurePlacementDeterminator;
+import devlaunchers.structuresystem.populator.StructureGeneratorConfig;
+import devlaunchers.structuresystem.populator.StructurePlacementDeterminator;
 
 public class PortalPlacementDeterminator extends StructurePlacementDeterminator {
 
