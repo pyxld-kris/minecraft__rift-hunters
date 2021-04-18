@@ -8,14 +8,19 @@ import devlaunchers.structuresystem.shapes.ShapeSize;
 public class Cuboid extends Shape {
 
 	private int xEnd, yEnd, zEnd;
-	private Material material;
 
+	public Cuboid(int xEnd, int yEnd, int zEnd) {
+		this.xEnd = xEnd;
+		this.yEnd = yEnd;
+		this.zEnd = zEnd;
+	}
+	
 	public Cuboid(int xEnd, int yEnd, int zEnd, Material material) {
 		this.xEnd = xEnd;
 		this.yEnd = yEnd;
 		this.zEnd = zEnd;
 
-		this.material = material;
+		setMaterial(material);
 	}
 
 	@Override
@@ -23,7 +28,7 @@ public class Cuboid extends Shape {
 		for (int x = 0; x < xEnd; x++) {
 			for (int y = 0; y < yEnd; y++) {
 				for (int z = 0; z < zEnd; z++) {
-					setBlockType(x, y, z, material);
+					placeBlock(x, y, z);
 				}
 			}
 		}

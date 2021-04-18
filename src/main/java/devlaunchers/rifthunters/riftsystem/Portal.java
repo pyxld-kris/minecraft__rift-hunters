@@ -12,35 +12,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 public class Portal {
-	//////////////////////
-	// <Static Methods> //
-	//////////////////////
-	public static void doPortalTeleport(Player player, Block portalBlock) {
-		World world = player.getWorld();
-		Location portalLocation = portalBlock.getLocation();
-		Portal portal = new Portal((int) portalLocation.getX(), 0, (int) portalLocation.getZ());
-		Vector destination = portal.getDestination();
-
-		// Get safe Y position to teleport to (this is where portal will be)
-		int destinationPortalY = 1 + (int) world.getHighestBlockAt((int) destination.getX(), (int) destination.getZ())
-				.getLocation().getY();
-		destination.setY(destinationPortalY);
-
-		Location playerTeleportLocation = new Location(world, (int) destination.getX() + 1,
-				(int) destination.getY() + 3, (int) destination.getZ());
-
-		player.teleport(playerTeleportLocation);
-
-		// Place a portal block at the destination portal location
-		// (initial seed algortthm only generates base portals, not destinations)
-		Bukkit.getScheduler().runTask(RiftHuntersPlugin.getInstance(), () -> {
-			PortalGenerator.spawnPortal(world, (int) destination.getX(), (int) destination.getZ());
-		});
-
-	}
-	///////////////////////
-	// </Static Methods> //
-	///////////////////////
 
 	private Vector location;
 
@@ -73,19 +44,25 @@ public class Portal {
 		if (destinationChunk.load(true)) {
 			Block portalBlock = world.getHighestBlockAt(destination.getBlockX(), destination.getBlockZ());
 
-			if (portalBlock.getType() != Material.END_STONE) {
+			Location teleportLocation = destination.toLocation(world).add(1, portalBlock.getY() + 3, 0);
+
+			// If Portal doesn't exist, generate it before Teleporting the Player
+			if (portalBlock.getType() != Material.DIAMOND_BLOCK) {
 				for (int x = -1; x < 2; x++) {
 					for (int z = -1; z < 2; z++) {
 						world.getChunkAt(chunkX + x, chunkZ + z).load(true);
 					}
 				}
 
-				Bukkit.getScheduler().runTask(RiftHuntersPlugin.getInstance(), () -> {
+				Bukkit.getScheduler().runTaskLater(RiftHuntersPlugin.getInstance(), () -> {
 					generateDestinationPortal(world);
-				});
+				}, 1);
+				Bukkit.getScheduler().runTaskLater(RiftHuntersPlugin.getInstance(), () -> {
+					player.teleport(teleportLocation);
+				}, 4);
+			} else {
+				player.teleport(teleportLocation);
 			}
-
-			player.teleport(destination.toLocation(world).add(1, portalBlock.getY() + 3, 0));
 		}
 	}
 

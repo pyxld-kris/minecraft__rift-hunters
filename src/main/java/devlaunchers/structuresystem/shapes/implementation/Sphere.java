@@ -6,6 +6,10 @@ import devlaunchers.structuresystem.shapes.CompositeShape;
 
 public class Sphere extends CompositeShape {
 
+	public Sphere(int height) {
+		this(height, null, false);
+	}
+
 	public Sphere(int height, Material material) {
 		this(height, material, false);
 	}
@@ -15,9 +19,13 @@ public class Sphere extends CompositeShape {
 		double maxRadius = height / 2;
 		for (double i = 0; i <= Math.PI; i += Math.PI / (height - 1)) {
 			int radius = (int) (Math.sin(i) * maxRadius);
-			addShape(maxRadius - radius, y, maxRadius - radius, new Cylinder((int) radius, 1, material, filled));
+			addShape(maxRadius - radius, y, maxRadius - radius, new Cylinder((int) radius, 1, filled));
 			y++;
 		}
+
+		if (material != null) {
+			setMaterial(material);
+		}
 	}
-	
+
 }

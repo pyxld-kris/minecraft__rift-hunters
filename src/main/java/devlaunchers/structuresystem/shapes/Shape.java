@@ -3,7 +3,6 @@ package devlaunchers.structuresystem.shapes;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -20,8 +19,10 @@ public abstract class Shape {
 	private Location startLocation;
 
 	private LinkedList<Consumer<Vector>> vectorTransformations = new LinkedList<>();
+
+	private ArrayList<FilterTransformer> filterTransformations = new ArrayList<>();
 	private LocationTransformer locationTransformer;
-	private ArrayList<Function<Vector, Boolean>> filterTransformations = new ArrayList<>();
+	private BlockTransformer blockTransformer;
 
 	public abstract void construct();
 
@@ -45,12 +46,22 @@ public abstract class Shape {
 		this.zOffset = 0;
 	}
 
-	public void setBlockType(int relativeX, int relativeY, int relativeZ, Material material) {
+	public void placeBlock(int relativeX, int relativeY, int relativeZ) {
 		Location location = transformLocation(relativeX, relativeY, relativeZ);
 		if (location == null) {
 			return;
 		}
-		location.getBlock().setType(material);
+		transformBlock(new Vector(relativeX, relativeY, relativeZ), location.getBlock());
+	}
+
+	protected void transformBlock(Vector relativePosition, Block block) {
+		if (blockTransformer != null) {
+			blockTransformer.transformBlock(relativePosition, block);
+		} else if (parent != null) {
+			parent.transformBlock(relativePosition, block);
+		} else {
+			block.setType(Material.AIR);
+		}
 	}
 
 	public Material getBlockType(int relativeX, int relativeY, int relativeZ) {
@@ -86,8 +97,8 @@ public abstract class Shape {
 			}
 		}
 
-		if (locationTransformer != null) {
-			return locationTransformer.transformLocation(new LocationTransformationRequest(originalLocation,
+		if (hasLocationTransformer()) {
+			return getLocationTransformer().transformLocation(new LocationTransformationRequest(originalLocation,
 					xOffset + relativeX, yOffset + relativeY, zOffset + relativeZ));
 		}
 		return originalLocation;
@@ -132,22 +143,48 @@ public abstract class Shape {
 
 	// Generic Location Transformations
 
-	public boolean hasLocationTransformer() {
-		return locationTransformer != null;
+	public Shape locationTransformer(LocationTransformer locationTransformer) {
+		this.locationTransformer = locationTransformer;
+		return this;
 	}
 
-	public void setLocationTransformer(LocationTransformer locationTransformer) {
-		this.locationTransformer = locationTransformer;
+	public boolean hasLocationTransformer() {
+		return locationTransformer != null;
 	}
 
 	public LocationTransformer getLocationTransformer() {
 		return locationTransformer;
 	}
 
+	// Block Material Transformations
+
+	public Shape blockTransformer(BlockTransformer blockTransformer) {
+		this.blockTransformer = blockTransformer;
+		return this;
+	}
+
+	public Shape blockTransformer(SimpleMaterialTransformer materialTransformer) {
+		this.blockTransformer = materialTransformer;
+		return this;
+	}
+
+	public Shape setMaterial(Material material) {
+		this.blockTransformer = (SimpleMaterialTransformer) (vec) -> material;
+		return this;
+	}
+
 	// Filter Transformations
 
-	public void addFilterTransformation(Function<Vector, Boolean> filter) {
+	/**
+	 * Adds a Filter Transformation, which allows cutting off Shapes (for example
+	 * only lower half of a Sphere etc.)
+	 * 
+	 * @param filter
+	 * @return The Shape Itself
+	 */
+	public Shape filterTransformation(FilterTransformer filter) {
 		filterTransformations.add(filter);
+		return this;
 	}
 
 	public boolean hasFilters() {
@@ -161,8 +198,8 @@ public abstract class Shape {
 	 * @return True if the location has to be filtered out
 	 */
 	public boolean isFiltered(Vector vec) {
-		for (Function<Vector, Boolean> filter : filterTransformations) {
-			if (filter.apply(vec)) {
+		for (FilterTransformer filter : filterTransformations) {
+			if (filter.filter(vec)) {
 				return true;
 			}
 		}
