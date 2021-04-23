@@ -1,9 +1,11 @@
 package devlaunchers.structuresystem.populator;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -41,6 +43,19 @@ public class StructureGeneratorConfig {
 			}
 		}
 		return false;
+	}
+
+	public List<Material> getMaterialList(String key) {
+		List<Material> materials = new ArrayList<>();
+		List<String> materialNames = getStructureConfig().getStringList(key);
+		if (materialNames == null) {
+			return null;
+		}
+
+		for (String material : materialNames) {
+			materials.add(Material.valueOf(material));
+		}
+		return materials;
 	}
 
 	public FileConfiguration getStructureConfig() {

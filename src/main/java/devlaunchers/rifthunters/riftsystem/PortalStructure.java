@@ -1,9 +1,14 @@
 package devlaunchers.rifthunters.riftsystem;
 
+import java.util.List;
+
+import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 
+import devlaunchers.structuresystem.populator.StructureGeneratorConfig;
 import devlaunchers.structuresystem.shapes.CompositeShape;
 import devlaunchers.structuresystem.shapes.implementation.Cuboid;
 import devlaunchers.structuresystem.shapes.implementation.Cylinder;
@@ -12,10 +17,13 @@ import devlaunchers.structuresystem.shapes.implementation.Transformers;
 
 public class PortalStructure extends CompositeShape {
 
-	private static Material[] decorationMaterials = { Material.END_STONE_BRICK_SLAB, Material.END_STONE_BRICK_STAIRS,
-			Material.END_STONE_BRICK_WALL };
+	private static List<Material> decorationMaterials;
+	private static List<Material> spawnBlockExclusions;
 
-	public PortalStructure() {
+	public PortalStructure(StructureGeneratorConfig structureConfig) {
+		decorationMaterials = structureConfig.getMaterialList("portal_decoration_materials");
+		spawnBlockExclusions = structureConfig.getMaterialList("portal_generation_exclusions");
+
 		Sphere lowerSphere = new Sphere(9, Material.END_STONE, true);
 		lowerSphere.filterTransformation(Transformers.filterUpperPart(3));
 
@@ -38,9 +46,18 @@ public class PortalStructure extends CompositeShape {
 			if (locRequest.relativeY > 2)
 				return origLocation;
 
-			Block high = origLocation.getWorld().getHighestBlockAt(origLocation.getBlockX(), origLocation.getBlockZ());
-			return high.getLocation().add(0, locRequest.relativeY, 0);
+			Location high = getHighestLocationAtWithExclusions(origLocation.getWorld(), origLocation.getBlockX(),
+					origLocation.getBlockZ());
+			return high.add(0, locRequest.relativeY, 0);
 		});
+	}
+
+	private static Location getHighestLocationAtWithExclusions(World world, double x, double z) {
+		Location location = world.getHighestBlockAt((int) x, (int) z).getLocation();
+		while (spawnBlockExclusions.contains(location.getBlock().getType())) {
+			location.subtract(0, 1, 0);
+		}
+		return location;
 	}
 
 }
