@@ -1,6 +1,11 @@
 package devlaunchers.rifthunters.riftsystem;
 
 import devlaunchers.rifthunters.RiftHuntersPlugin;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -9,62 +14,53 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.world.WorldInitEvent;
+import org.bukkit.event.world.WorldUnloadEvent;
+import org.bukkit.scheduler.BukkitTask;
 
 public class PortalListener implements Listener {
 
-    private static boolean populatorIsInitialized = false;
-    private static boolean playerInPortalBlock = false;
+	private static HashMap<String, BukkitTask> queuedTeleports = new HashMap<>();
 
-    @EventHandler
-    public void onWorldInit(WorldInitEvent e) {
-        if (!populatorIsInitialized) {
-            System.out.println("onWorldInit: WORLD HAS INITIALIZED");
-            World world = e.getWorld();
-            // spawn is generated before the next line is called
-            world.getPopulators().add(new PortalPopulator());
-            populatorIsInitialized = true;
-        }
-    }
+	@EventHandler
+	public void onPlayerMove(PlayerMoveEvent e) {
+		final Player player = e.getPlayer();
+		Location playerLocation = player.getLocation();
+		Block playerBlock = playerLocation.getBlock();
 
-    @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent e) {
-        System.out.println("PLAYER_JOINED");
-        Bukkit.getServer().broadcastMessage("player joined");
-    }
+		if (!queuedTeleports.containsKey(player.getName())) {
+			if (playerBlock.getType() == Material.END_GATEWAY) {
 
+				World world = player.getWorld();
 
-    @EventHandler
-    public void onPlayerMove(PlayerMoveEvent e) {
-        Player player = e.getPlayer();
-        Location playerLocation = player.getLocation();
-        World world = player.getWorld();
-        Block playerBlock = world.getBlockAt(playerLocation);
-        if (playerBlock.getType() == Material.END_GATEWAY && !playerInPortalBlock) {
-            playerInPortalBlock = true;
+				// world.playEffect(effectLocation, Effect.ENDER_SIGNAL, 0);
 
+				// Portal Travel Effect expects no additional Data and therefore can be null
+				player.playEffect(player.getEyeLocation(), Effect.PORTAL_TRAVEL, null);
 
-            // Visually notify the player that they are standing in a portal block
-            Location effectLocation = playerLocation.clone();
-            effectLocation.setY(effectLocation.getY() + 1);
-            //world.playEffect(effectLocation, Effect.ENDER_SIGNAL, 0);
-            world.playEffect(effectLocation, Effect.PORTAL_TRAVEL, 0);
+				// Delay for two seconds: if player is still in portal, then teleport
+				Bukkit.getScheduler().runTaskLater(RiftHuntersPlugin.getInstance(), () -> {
+					teleportIfInPortal(player);
+				}, 40);
 
-            // Delay for one second: if player is still in portal, then teleport
-            Bukkit.getScheduler().runTaskLater(RiftHuntersPlugin.getInstance(), new Runnable() {
-                @Override
-                public void run() {
-                    Block newPlayerBlock = world.getBlockAt(player.getLocation());
-                    if (newPlayerBlock.getType() == Material.END_GATEWAY) {
-                        // Player is STILL standing in portal
-                        Portal.doPortalTeleport(player, playerBlock);
-                    }
-                }
+			}
+		} else {
+			if (playerBlock.getType() != Material.END_GATEWAY) {
+				queuedTeleports.get(player.getName()).cancel();
+				queuedTeleports.remove(player.getName());
+			}
+		}
+	}
 
-            }, 40);
-        } else {
-            playerInPortalBlock = false;
-        }
-    }
-
+	/**
+	 * Helper Function for onPlayerMove
+	 */
+	private static void teleportIfInPortal(Player player) {
+		Block newPlayerBlock = player.getLocation().getBlock();
+		if (newPlayerBlock.getType() == Material.END_GATEWAY) {
+			// Player is STILL standing in portal
+			Portal.getPortal(player.getLocation()).doPortalTeleport(player);
+		}
+		queuedTeleports.remove(player.getName());
+	}
 
 }

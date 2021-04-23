@@ -1,21 +1,26 @@
 package devlaunchers.rifthunters.riftsystem;
 
-import devlaunchers.rifthunters.populator.StructurePlacementDeterminator;
+import java.util.Random;
+
 import org.bukkit.Chunk;
 import org.bukkit.World;
 
-import java.util.Random;
+import devlaunchers.structuresystem.populator.StructureGeneratorConfig;
+import devlaunchers.structuresystem.populator.StructurePlacementDeterminator;
 
-public class PortalPlacementDeterminator implements StructurePlacementDeterminator {
+public class PortalPlacementDeterminator extends StructurePlacementDeterminator {
 
-    public PortalPlacementDeterminator() {
-        System.out.println("CREATING DETERMINATOR");
-    }
+	private double portalProbability;
 
-    public boolean determinePlacement(World world, Random rand, Chunk chunk) {
-        if (rand.nextInt() % 200 == 0)
-            return true;
-        return false;
-    }
+	@Override
+	public void initPlacementDeterminator(StructureGeneratorConfig structureConfig) {
+		portalProbability = structureConfig.getStructureConfig().getDouble("portal_spawn_probability", 0.005);
+	}
+
+	public boolean determinePlacement(World world, Random rand, Chunk chunk) {
+		if (rand.nextDouble() <= portalProbability)
+			return true;
+		return false;
+	}
 
 }
