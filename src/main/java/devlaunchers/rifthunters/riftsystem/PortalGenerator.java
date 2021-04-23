@@ -15,11 +15,11 @@ import devlaunchers.structuresystem.shapes.ShapeSize;
 
 public class PortalGenerator extends StructureGenerator {
 
-	private static PortalStructure portalStructure = new PortalStructure();
+	private static PortalStructure portalStructure;
 
-	// Unused in RiftSystem
 	@Override
 	public void initGenerator(StructureGeneratorConfig structureConfig) {
+		portalStructure = new PortalStructure(structureConfig);
 	}
 
 	public void generate(World world, Random rand, Chunk chunk) {
@@ -39,5 +39,7 @@ public class PortalGenerator extends StructureGenerator {
 
 		portalStructure.construct(highestBlock.getLocation());
 	}
+
+
 
 }

@@ -1,5 +1,7 @@
 package devlaunchers.structuresystem.shapes.implementation;
 
+import java.util.List;
+
 import org.bukkit.Material;
 
 import devlaunchers.structuresystem.shapes.FilterTransformer;
@@ -21,6 +23,10 @@ public final class Transformers {
 
 	public static SimpleMaterialTransformer randomMaterialSelector(final Material... materials) {
 		return (vec) -> materials[(int) Math.round(Math.random() * (materials.length - 1))];
+	}
+
+	public static SimpleMaterialTransformer randomMaterialSelector(final List<Material> materials) {
+		return (vec) -> materials.get((int) Math.round(Math.random() * (materials.size() - 1)));
 	}
 
 }

@@ -3,3 +3,24 @@ allowedWorlds:
  - "daily-world.*"
 
 portal_spawn_probability: 0.005
+
+portal_decoration_materials:
+ - "END_STONE_BRICK_SLAB"
+ - "END_STONE_BRICK_STAIRS"
+ - "END_STONE_BRICK_WALL"
+ 
+portal_generation_exclusions:
+ - "AIR"
+ - "BEE_NEST"
+ - "ACACIA_LEAVES"
+ - "ACACIA_LOG"
+ - "BIRCH_LEAVES"
+ - "BIRCH_LOG"
+ - "DARK_OAK_LEAVES"
+ - "DARK_OAK_LOG"
+ - "JUNGLE_LEAVES"
+ - "JUNGLE_LOG"
+ - "OAK_LEAVES"
+ - "OAK_LOG"
+ - "SPRUCE_LEAVES"
+ - "SPRUCE_LOG"
